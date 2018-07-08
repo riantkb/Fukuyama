@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Fukuyama</string>
     <string name="photo_view_description">Photo</string>
-    <string name="photo_button_label">Photo</string>
-    <string name="toast_no_activities">No activities for taking photoes</string>
+    <string name="photo_button_label">Take Photo</string>
+    <string name="select_button_label">Select Face Image</string>
+    <string name="toast_no_activities">No activities for taking photos</string>
 </resources>

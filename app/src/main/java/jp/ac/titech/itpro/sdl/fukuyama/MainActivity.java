@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
@@ -44,6 +45,7 @@ public class MainActivity extends Activity {
     }
     private static final String TAG = "MainActivity";
     private final static int REQ_PHOTO = 1234;
+    private final static int REQ_SELECT_FILE = 12345;
     private static final String KEY_CAMERA_URI = "MainActivity.cameraUri";
     private static final String KEY_FILE_PATH = "MainActivity.filePath";
     private ImageView imageView = null;
@@ -59,6 +61,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         Button photoButton = findViewById(R.id.photo_button);
+        Button selectButton = findViewById(R.id.select_button);
         imageView = findViewById(R.id.photo_view);
         photoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,17 +69,27 @@ public class MainActivity extends Activity {
                 cameraIntent();
             }
         });
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // for Build.VERSION.SDK_INT >= 19
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQ_SELECT_FILE);
+            }
+        });
 
         checkPermission();
         try {
-            initFaceDetetcor();
+            initFaceDetector();
         }
         catch (IOException e) { e.printStackTrace(); }
 
         InputStream inStream = this.getResources().openRawResource(R.raw.fukuyama);
         fukuyama = BitmapFactory.decodeStream(inStream);
     }
-    protected void initFaceDetetcor() throws IOException {
+    protected void initFaceDetector() throws IOException {
         InputStream inStream = this.getResources().openRawResource(R.raw.haarcascade_frontalface_alt);
         File cascadeDir = this.getDir("cascade", Context.MODE_PRIVATE);
         File cascadeFile = new File(cascadeDir, "haarcascade_frontalface_alt.xml");
@@ -109,7 +122,6 @@ public class MainActivity extends Activity {
             case REQ_PHOTO:
                 if (resCode == RESULT_OK) {
                     if(cameraUri != null){
-                        Log.d("poi", "poi~");
 //                        filePath = data.getStringExtra(KEY_FILE_PATH);
                         imageView.setImageURI(cameraUri);
 
@@ -134,11 +146,26 @@ public class MainActivity extends Activity {
                             bmp.compress(Bitmap.CompressFormat.JPEG, 100, fostream);
                             fostream.flush();
                             fostream.close();
-                            break;
                         }
                         catch (IOException e) { e.printStackTrace(); }
 
                         registerDatabase(filePath);
+                    }
+                }
+                break;
+            case REQ_SELECT_FILE:
+                if (resCode == RESULT_OK) {
+                    final int takeFlags = data.getFlags()
+                            & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                    Uri uri = data.getData();
+                    try {
+                        getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                        fukuyama = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    } catch(Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(this, "ファイルを読み込むことができませんでした", Toast.LENGTH_LONG).show();
                     }
                 }
                 break;

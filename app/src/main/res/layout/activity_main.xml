@@ -13,11 +13,26 @@
         android:layout_weight="1"
         android:contentDescription="@string/photo_view_description"/>
 
-    <Button
-        android:id="@+id/photo_button"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/widget_margin"
-        android:text="@string/photo_button_label"/>
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/photo_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/photo_button_label"/>
+
+        <Button
+            android:id="@+id/select_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/select_button_label"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>
